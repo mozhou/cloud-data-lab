@@ -95,6 +95,16 @@ kmeans.truth <- image3.sure$label==1
 CalculateTPR(0.1, kmeans.pred, kmeans.truth)
 CalculateFPR(0.1, kmeans.pred, kmeans.truth)
 
+# Random forest variable selection
+library(randomForest)
+imageall.sure <- rbind(image1.sure, image2.sure, image3.sure)
+imageall.sure$label <- factor(imageall.sure$label)
+imageall.rf <- randomForest(label~NDAI+SD+CORR+DF+CF+BF+AF+AN,
+                            data=imageall.sure, mtry=3, ntree=300,
+                            importance=TRUE)
+importance(imageall.rf)
+varImpPlot(imageall.rf)
+
 # Helper functions
 # Multiple plot function
 #

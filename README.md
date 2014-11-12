@@ -13,8 +13,9 @@ The .r code used has four parts:
 
 2. classification.r contains the code for each classification model, including logistic regression, LDA, QDA, Semi-supervised EM, SVM and the ensemble model . It also contains the assessment of the models using CV, AIC, ROC and AUC. The file also includes the miss classification error analysis.
 
-3. SVM_parallel.R and postProcessSVM.R contains code to use SVM for prediction.
+3. SVM_parallel.r file has the code for parallel computation of SVM classification models on different training data sizes starting from 6000 pixels to 15000 pixels. This file outputs 10 csv files (confusion_timei.csv) with the duration of the run and the confusion tables for different sample sizes. The 'postProcessSVM.R' file processes the 10 'confusion_timei.csv' files and generates the plot which shows the accuracy, TPR, FPR and FDR for different sample sizes.
 
 3. bestModel.r contains the code to use our bestModel to predict cloud/no cloud for a new set of image data. It also provides assessment of fit using ROC and AUC.
 
+4. plot folder includes all the plots used to generate the pdf.
 
