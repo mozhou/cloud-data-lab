@@ -3,108 +3,6 @@
 library(dplyr)
 library(ggplot2)
 
-# Import three images
-image1 <- read.table('image1.txt', header=F, stringsAsFactors=FALSE)
-image2 <- read.table('image2.txt', header=F, stringsAsFactors=FALSE)
-image3 <- read.table('image3.txt', header=F, stringsAsFactors=FALSE)
-
-collabs <- c('y','x','label','NDAI','SD','CORR','DF','CF','BF','AF','AN')
-names(image1) <- collabs
-names(image2) <- collabs
-names(image3) <- collabs
-
-# The expert label plots.
-ggplot(image1) + geom_point(aes(x=x, y=y, color=factor(label))) + labs(title = "Image1 labels")
-ggplot(image2) + geom_point(aes(x=x, y=y, color=factor(label))) + labs(title = "Image2 labels")
-ggplot(image3) + geom_point(aes(x=x, y=y, color=factor(label))) + labs(title = "Image3 labels")
-
-# Different angle plots
-# Visually
-p1 <- ggplot(image3) + geom_point(aes(x=x, y=y, color=DF))
-p2 <- ggplot(image3) + geom_point(aes(x=x, y=y, color=CF))
-p3 <- ggplot(image3) + geom_point(aes(x=x, y=y, color=BF))
-p4 <- ggplot(image3) + geom_point(aes(x=x, y=y, color=AF))
-p5 <- ggplot(image3) + geom_point(aes(x=x, y=y, color=AN))
-p6 <- ggplot(image3) + geom_point(aes(x=x, y=y, color=SD))
-multiplot(p1, p2, p3, p4, p5, p6, cols=2)
-# Quantitatively
-p1 <- ggplot(image1) + geom_density(aes(x=AN, group=factor(label), fill=factor(label)), alpha=0.5)
-p2 <- ggplot(image1) + geom_density(aes(x=AF, group=factor(label), fill=factor(label)), alpha=0.5)
-p3 <- ggplot(image1) + geom_density(aes(x=BF, group=factor(label), fill=factor(label)), alpha=0.5)
-p4 <- ggplot(image1) + geom_density(aes(x=CF, group=factor(label), fill=factor(label)), alpha=0.5)
-p5 <- ggplot(image1) + geom_density(aes(x=DF, group=factor(label), fill=factor(label)), alpha=0.5)
-multiplot(p1, p2, p3, p4, p5, cols=2)
-
-# Class conditional densities.
-p1 <- ggplot(image1) + geom_density(aes(x=NDAI, group=factor(label), fill=factor(label)), alpha=0.5)
-p2 <- ggplot(image1) + geom_density(aes(x=CORR, group=factor(label), fill=factor(label)), alpha=0.5)
-p3 <- ggplot(image1) + geom_density(aes(x=SD, group=factor(label), fill=factor(label)), alpha=0.5)
-multiplot(p1, p2, p3, cols=3)
-
-# discard all unsure rows (label == 0) for the purposes of classification
-image1.sure <- image1[which(image1$label != 0), ]
-image1.sure$label <- factor(image1.sure$label)
-image2.sure <- image2[which(image2$label != 0), ]
-image2.sure$label <- factor(image2.sure$label)
-image3.sure <- image3[which(image3$label != 0), ]
-image3.sure$label <- factor(image3.sure$label)
-
-
-# Unsupervised K-means Clustering on the plots
-# Image 1
-res <- kmeans(image1.sure$NDAI, centers=2)
-ggplot(image1.sure) + geom_density(aes(x=NDAI, fill=factor(res$cluster)), alpha=0.5)
-
-# Change labels:
-res$cluster[which(res$cluster==1)]=-1
-res$cluster[which(res$cluster==2)]=1
-
-kmeans.pred <- res$cluster
-kmeans.truth <- image1.sure$label==1
-
-# Compute TPR, FPR
-CalculateTPR(0.1, kmeans.pred, kmeans.truth)
-CalculateFPR(0.1, kmeans.pred, kmeans.truth)
-
-# Image 2
-res <- kmeans(image2$NDAI, centers=2)
-ggplot(image2) + geom_density(aes(x=NDAI, fill=factor(res$cluster)), alpha=0.5)
-
-# Change labels:
-res$cluster[which(res$cluster==1)]=-1
-res$cluster[which(res$cluster==2)]=1
-
-kmeans.pred <- res$cluster
-kmeans.truth <- image2.sure$label==1
-
-# Compute TPR, FPR
-CalculateTPR(0.1, kmeans.pred, kmeans.truth)
-CalculateFPR(0.1, kmeans.pred, kmeans.truth)
-
-# Image 3
-res <- kmeans(image3$NDAI, centers=2)
-ggplot(image2) + geom_density(aes(x=NDAI, fill=factor(res$cluster)), alpha=0.5)
-# Change labels:
-res$cluster[which(res$cluster==1)]=-1
-res$cluster[which(res$cluster==2)]=1
-
-kmeans.pred <- res$cluster
-kmeans.truth <- image3.sure$label==1
-
-# Compute TPR, FPR
-CalculateTPR(0.1, kmeans.pred, kmeans.truth)
-CalculateFPR(0.1, kmeans.pred, kmeans.truth)
-
-# Random forest variable selection
-library(randomForest)
-imageall.sure <- rbind(image1.sure, image2.sure, image3.sure)
-imageall.sure$label <- factor(imageall.sure$label)
-imageall.rf <- randomForest(label~NDAI+SD+CORR+DF+CF+BF+AF+AN,
-                            data=imageall.sure, mtry=3, ntree=300,
-                            importance=TRUE)
-importance(imageall.rf)
-varImpPlot(imageall.rf)
-
 # Helper functions
 # Multiple plot function
 #
@@ -226,3 +124,120 @@ SplitImage4 <- function(image){
   return(list(image.part1, image.part2, image.part3, image.part4))
 }
 
+
+# Import three images
+image1 <- read.table('image1.txt', header=F, stringsAsFactors=FALSE)
+image2 <- read.table('image2.txt', header=F, stringsAsFactors=FALSE)
+image3 <- read.table('image3.txt', header=F, stringsAsFactors=FALSE)
+
+collabs <- c('y','x','label','NDAI','SD','CORR','DF','CF','BF','AF','AN')
+names(image1) <- collabs
+names(image2) <- collabs
+names(image3) <- collabs
+
+# The expert label plots.
+png("part1.png")
+ggplot(image1) + geom_point(aes(x=x, y=y, color=factor(label))) + labs(title = "Image1 labels")
+dev.off()
+png("part2.png")
+ggplot(image2) + geom_point(aes(x=x, y=y, color=factor(label))) + labs(title = "Image2 labels")
+dev.off()
+png("part3.png")
+ggplot(image3) + geom_point(aes(x=x, y=y, color=factor(label))) + labs(title = "Image3 labels")
+dev.off()
+
+# Different angle plots
+# Visually
+p1 <- ggplot(image1) + geom_point(aes(x=x, y=y, color=DF))
+p2 <- ggplot(image1) + geom_point(aes(x=x, y=y, color=CF))
+p3 <- ggplot(image1) + geom_point(aes(x=x, y=y, color=BF))
+p4 <- ggplot(image1) + geom_point(aes(x=x, y=y, color=AF))
+p5 <- ggplot(image1) + geom_point(aes(x=x, y=y, color=AN))
+p6 <- ggplot(image1) + geom_point(aes(x=x, y=y, color=SD))
+png("multiangleimage1.png")
+multiplot(p1, p2, p3, p4, p5, p6, cols=2)
+dev.off()
+
+# Quantitatively
+p1 <- ggplot(image1) + geom_density(aes(x=AN, group=factor(label), fill=factor(label)), alpha=0.5)
+p2 <- ggplot(image1) + geom_density(aes(x=AF, group=factor(label), fill=factor(label)), alpha=0.5)
+p3 <- ggplot(image1) + geom_density(aes(x=BF, group=factor(label), fill=factor(label)), alpha=0.5)
+p4 <- ggplot(image1) + geom_density(aes(x=CF, group=factor(label), fill=factor(label)), alpha=0.5)
+p5 <- ggplot(image1) + geom_density(aes(x=DF, group=factor(label), fill=factor(label)), alpha=0.5)
+png("multidensity.png")
+multiplot(p1, p2, p3, p4, p5, cols=2)
+dev.off()
+
+# Class conditional densities.
+p1 <- ggplot(image1) + geom_density(aes(x=NDAI, group=factor(label), fill=factor(label)), alpha=0.5)
+p2 <- ggplot(image1) + geom_density(aes(x=CORR, group=factor(label), fill=factor(label)), alpha=0.5)
+p3 <- ggplot(image1) + geom_density(aes(x=SD, group=factor(label), fill=factor(label)), alpha=0.5)
+png("densityfeature.png")
+multiplot(p1, p2, p3, cols=3)
+dev.off()
+
+# discard all unsure rows (label == 0) for the purposes of classification
+image1.sure <- image1[which(image1$label != 0), ]
+image1.sure$label <- factor(image1.sure$label)
+image2.sure <- image2[which(image2$label != 0), ]
+image2.sure$label <- factor(image2.sure$label)
+image3.sure <- image3[which(image3$label != 0), ]
+image3.sure$label <- factor(image3.sure$label)
+
+
+# Unsupervised K-means Clustering on the plots
+# Image 1
+res <- kmeans(image1.sure$NDAI, centers=2)
+ggplot(image1.sure) + geom_density(aes(x=NDAI, fill=factor(res$cluster)), alpha=0.5)
+
+# Change labels:
+res$cluster[which(res$cluster==1)]=-1
+res$cluster[which(res$cluster==2)]=1
+
+kmeans.pred <- res$cluster
+kmeans.truth <- image1.sure$label==1
+
+# Compute TPR, FPR
+CalculateTPR(0.1, kmeans.pred, kmeans.truth)
+CalculateFPR(0.1, kmeans.pred, kmeans.truth)
+
+# Image 2
+res <- kmeans(image2$NDAI, centers=2)
+ggplot(image2) + geom_density(aes(x=NDAI, fill=factor(res$cluster)), alpha=0.5)
+
+# Change labels:
+res$cluster[which(res$cluster==1)]=-1
+res$cluster[which(res$cluster==2)]=1
+
+kmeans.pred <- res$cluster
+kmeans.truth <- image2.sure$label==1
+
+# Compute TPR, FPR
+CalculateTPR(0.1, kmeans.pred, kmeans.truth)
+CalculateFPR(0.1, kmeans.pred, kmeans.truth)
+
+# Image 3
+res <- kmeans(image3$NDAI, centers=2)
+ggplot(image2) + geom_density(aes(x=NDAI, fill=factor(res$cluster)), alpha=0.5)
+# Change labels:
+res$cluster[which(res$cluster==1)]=-1
+res$cluster[which(res$cluster==2)]=1
+
+kmeans.pred <- res$cluster
+kmeans.truth <- image3.sure$label==1
+
+# Compute TPR, FPR
+CalculateTPR(0.1, kmeans.pred, kmeans.truth)
+CalculateFPR(0.1, kmeans.pred, kmeans.truth)
+
+# Random forest variable selection
+library(randomForest)
+imageall.sure <- rbind(image1.sure, image2.sure, image3.sure)
+imageall.sure$label <- factor(imageall.sure$label)
+imageall.rf <- randomForest(label~NDAI+SD+CORR+DF+CF+BF+AF+AN,
+                            data=imageall.sure, mtry=3, ntree=300,
+                            importance=TRUE)
+importance(imageall.rf)
+jpeg("varImp.jpeg")
+varImpPlot(imageall.rf)
+dev.off()

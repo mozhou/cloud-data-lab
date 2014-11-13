@@ -321,19 +321,27 @@ qda.true11 <- image3.sure$label==1
 qda.true12 <- image2.sure$label==1
 qda.true13 <- image1.sure$label==1
 
+jpeg('bestQDAfold1.jpeg')
 EvaluateModel(qda.pred11, qda.true11)
+dev.off()
 ### [1] 0.0150000 0.9448786 0.2601624
 ### [1] 0.8877764
+jpeg('bestQDAfold2.jpeg')
 EvaluateModel(qda.pred12, qda.true12)
+dev.off()
 ### [1] 0.41300000 0.99401518 0.08866191
 ### [1] 0.9707214
+jpeg('bestQDAfold3.jpeg')
 EvaluateModel(qda.pred13, qda.true13)
+dev.off()
 ### [1] 0.2200000 0.9628743 0.0938231
 ### [1] 0.9593713
 # Average AUC: 0.93929
 
 # Joint Evaluation
+jpeg('bestQDApooled.jpeg')
 EvaluateModel(c(qda.pred11, qda.pred12,qda.pred13), c(qda.true11,qda.true12, qda.true13))
+dev.off()
 ### [1] 0.1400000 0.9465060 0.1338055
 ### AUC: 0.9473045
 
@@ -509,20 +517,35 @@ EvaluateModel(c(ensemble1.pred, ensemble2.pred, ensemble3.pred),
 # Train set: Image3
 misClass <- which(class.1 != image3.label)
 misClassification.1 <- image3.sure[misClass,]
+png("misclass11.png")
 ggplot(misClassification.1) + geom_point(aes(x=x, y=y))
+dev.off()
+png("misclass12.png")
 ggplot(image3) + geom_point(aes(x=x, y=y, color=factor(label)))
+dev.off()
+png("misclass13.png")
 ggplot(image3) + geom_point(aes(x=x, y=y, color=AN))
+dev.off()
 
 # Plot the density of misclassification
+png("misclass14.png")
 ggplot(misClassification.1) + geom_density(aes(x=NDAI, group=factor(label), fill=factor(label)), alpha=0.5)
+dev.off()
+png("misclass15.png")
 ggplot(image3.sure) + geom_density(aes(x=NDAI, group=factor(label), fill=factor(label)), alpha=0.5)
-
+dev.off()
+png("misclass16.png")
 ggplot(misClassification.1) + geom_density(aes(x=CORR, group=factor(label), fill=factor(label)), alpha=0.5)
+dev.off()
+png("misclass17.png")
 ggplot(image3.sure) + geom_density(aes(x=CORR, group=factor(label), fill=factor(label)), alpha=0.5)
-
+dev.off()
+png("misclass18.png")
 ggplot(misClassification.1) + geom_density(aes(x=SD, group=factor(label), fill=factor(label)), alpha=0.5)
+dev.off()
+png("misclass19.png")
 ggplot(image3.sure) + geom_density(aes(x=SD, group=factor(label), fill=factor(label)), alpha=0.5)
-
+dev.off()
 
 # Train set: Image2
 misClass <- which(class.2 != image2.label)
