@@ -5,6 +5,8 @@ This repository contains the necessary files to reproduce the cloud data lab.
 
 The lab consists of the .r code used, the raw .tex file used to generate the report and the final pdf report.
 
+The .r code will generate and save the plots automatically on the current directory. Please put all plots in a folder called plot and then generate the pdf file.
+
 The .r code used has four parts:
 1. EDA.r contains the code used for exploratory data analysis and the helper functions:
   a) Multiplot to plot multi graphs on one plot.
